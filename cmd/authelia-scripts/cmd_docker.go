@@ -155,12 +155,12 @@ func deploy(docker *Docker, tag, registry string) {
 }
 
 func deployManifest(docker *Docker, tag, registry1, registry2 string) {
-	tag1 := registry1 + "/" + DockerImageName + ":"
-	tag2 := registry2 + "/" + DockerImageName + ":"
+	tag1 := registry1 + "/" + DockerImageName + ":" + tag
+	tag2 := registry2 + "/" + DockerImageName + ":" + tag
 
 	log.Infof("Docker manifest %s:%s will be deployed on %s and %s", DockerImageName, tag, registry1, registry2)
 
-	if err := docker.Manifest(tag1+tag, tag2+tag); err != nil {
+	if err := docker.Manifest(tag1, tag2); err != nil {
 		log.Fatal(err)
 	}
 }
