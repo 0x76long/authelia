@@ -154,12 +154,13 @@ func deploy(docker *Docker, tag, registry string) {
 	}
 }
 
-func deployManifest(docker *Docker, tag, registry string) {
-	dockerImagePrefix := registry + "/" + DockerImageName + ":"
+func deployManifest(docker *Docker, tag, registry1, registry2 string) {
+	tag1 := registry1 + "/" + DockerImageName + ":"
+	tag2 := registry2 + "/" + DockerImageName + ":"
 
-	log.Infof("Docker manifest %s%s will be deployed on %s", dockerImagePrefix, tag, registry)
+	log.Infof("Docker manifest %s:%s will be deployed on %s and %s", DockerImageName, tag, registry1, registry2)
 
-	if err := docker.Manifest(dockerImagePrefix + tag); err != nil {
+	if err := docker.Manifest(tag1+tag, tag2+tag); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -201,46 +202,39 @@ func publishDockerImage(arch string) {
 func publishDockerManifest() {
 	docker := &Docker{}
 
-	for _, registry := range registries {
-		switch {
-		case ciTag != "":
-			if len(tags) == 4 {
-				log.Infof("Detected tags: '%s' | '%s' | '%s'", tags[1], tags[2], tags[3])
-				login(docker, registry)
-				deployManifest(docker, tags[1], registry)
+	switch {
+	case ciTag != "":
+		if len(tags) == 4 {
+			log.Infof("Detected tags: '%s' | '%s' | '%s'", tags[1], tags[2], tags[3])
+			login(docker, registries[0])
+			login(docker, registries[1])
+			deployManifest(docker, tags[1], registries[0], registries[1])
+			publishDockerReadme(docker)
 
-				if registry == dockerhub {
-					publishDockerReadme(docker)
-				}
-
-				if !ignoredSuffixes.MatchString(ciTag) {
-					deployManifest(docker, tags[2], registry)
-					deployManifest(docker, tags[3], registry)
-					deployManifest(docker, "latest", registry)
-
-					if registry == dockerhub {
-						publishDockerReadme(docker)
-					}
-				}
-			} else {
-				log.Fatal("Docker manifest will not be published, the specified tag does not conform to the standard")
-			}
-		case ciBranch != masterTag && !publicRepo.MatchString(ciBranch):
-			login(docker, registry)
-			deployManifest(docker, ciBranch, registry)
-		case ciBranch != masterTag && publicRepo.MatchString(ciBranch):
-			login(docker, registry)
-			deployManifest(docker, "PR"+ciPullRequest, registry)
-		case ciBranch == masterTag && ciPullRequest == stringFalse:
-			login(docker, registry)
-			deployManifest(docker, "master", registry)
-
-			if registry == dockerhub {
+			if !ignoredSuffixes.MatchString(ciTag) {
+				deployManifest(docker, tags[2], registries[0], registries[1])
+				deployManifest(docker, tags[3], registries[0], registries[1])
+				deployManifest(docker, "latest", registries[0], registries[1])
 				publishDockerReadme(docker)
 			}
-		default:
-			log.Info("Docker manifest will not be published")
+		} else {
+			log.Fatal("Docker manifest will not be published, the specified tag does not conform to the standard")
 		}
+	case ciBranch != masterTag && !publicRepo.MatchString(ciBranch):
+		login(docker, registries[0])
+		login(docker, registries[1])
+		deployManifest(docker, ciBranch, registries[0], registries[1])
+	case ciBranch != masterTag && publicRepo.MatchString(ciBranch):
+		login(docker, registries[0])
+		login(docker, registries[1])
+		deployManifest(docker, "PR"+ciPullRequest, registries[0], registries[1])
+	case ciBranch == masterTag && ciPullRequest == stringFalse:
+		login(docker, registries[0])
+		login(docker, registries[1])
+		deployManifest(docker, "master", registries[0], registries[1])
+		publishDockerReadme(docker)
+	default:
+		log.Info("Docker manifest will not be published")
 	}
 }
 
