@@ -32,7 +32,7 @@ func (d *Docker) Push(tag string) error {
 
 // Manifest push a docker manifest to dockerhub.
 func (d *Docker) Manifest(tag string) error {
-	return utils.CommandWithStdout("docker", "buildx", "build", "-t", tag, "--platform", "linux/amd64,linux/arm/v7,linux/arm64/v8", "--push", ".").Run()
+	return utils.CommandWithStdout("docker", "buildx", "build", "-t", tag, "--platform", "linux/amd64,linux/arm/v7,linux/arm64", "--push", ".").Run()
 }
 
 // PublishReadme push README.md to dockerhub.
