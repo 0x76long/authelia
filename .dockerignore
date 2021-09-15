@@ -2,7 +2,7 @@
 *
 
 # Overrides
-!authelia
+!authelia-linux-*
 !LICENSE
 !entrypoint.sh
 !healthcheck.sh

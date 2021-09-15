@@ -53,10 +53,17 @@ steps:
   - wait:
     if: build.env("CI_BYPASS") != "true"
 
-  - label: ":docker: Image Builds"
-    command: ".buildkite/steps/buildimages.sh | buildkite-agent pipeline upload"
+  - label: ":docker: Build Image [coverage]"
+    command: "authelia-scripts docker build --arch=coverage"
+    agents:
+      build: "linux-coverage"
+    artifact_paths:
+      - "authelia-image-${BUILD_ARCH}.tar.zst"
     depends_on: ~
-    if: build.env("CI_BYPASS") != "true"
+    env:
+      DOCKER_BUILDKIT: "1"
+    key: "build-docker-linux-coverage"
+    if: build.env("CI_BYPASS") != "true" && build.branch !~ /^(v[0-9]+\.[0-9]+\.[0-9]+)$\$/ && build.message !~ /\[(skip test|test skip)\]/
 
   - label: ":debian: Package Builds"
     command: ".buildkite/steps/debpackages.sh | buildkite-agent pipeline upload"

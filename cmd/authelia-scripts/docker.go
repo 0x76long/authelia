@@ -31,13 +31,8 @@ func (d *Docker) Push(tag string) error {
 }
 
 // Manifest push a docker manifest to dockerhub.
-func (d *Docker) Manifest(tag, amd64tag, arm32v7tag, arm64v8tag string) error {
-	return utils.CommandWithStdout("docker", "buildx", "imagetools", "create", "-t", tag, "-t", amd64tag, "-t", arm32v7tag, "-t", arm64v8tag).Run()
-}
-
-// CleanTag remove a tag from dockerhub.
-func (d *Docker) CleanTag(tag string) error {
-	return utils.CommandWithStdout("bash", "-c", `token=$(curl -fs --retry 3 -H "Content-Type: application/json" -X "POST" -d '{"username": "'$DOCKER_USERNAME'", "password": "'$DOCKER_PASSWORD'"}' https://hub.docker.com/v2/users/login/ | jq -r .token) && curl -fs --retry 3 -o /dev/null -L -X "DELETE" -H "Authorization: JWT $token" https://hub.docker.com/v2/repositories/`+DockerImageName+"/tags/"+tag+"/").Run()
+func (d *Docker) Manifest(tag string) error {
+	return utils.CommandWithStdout("docker", "buildx", "build", "-t", tag, "--platform", "linux/amd64", "linux/arm/v7", "linux/arm64/v8", "--push", ".").Run()
 }
 
 // PublishReadme push README.md to dockerhub.

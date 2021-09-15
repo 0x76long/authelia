@@ -3,14 +3,20 @@
 # ===================================
 FROM alpine:3.14.2
 
+ARG TARGETOS
+ARG TARGETARCH
+
 WORKDIR /app
 
-COPY / ./
+COPY LICENSE .healthcheck.env entrypoint.sh healthcheck.sh ./
+
+COPY authelia-${TARGETOS}-${TARGETARCH} ./authelia
 
 RUN \
 chmod 0666 /app/.healthcheck.env
 
-RUN apk --no-cache add ca-certificates su-exec tzdata
+RUN \
+apk --no-cache add ca-certificates su-exec tzdata
 
 EXPOSE 9091
 

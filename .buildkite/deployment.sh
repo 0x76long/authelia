@@ -22,20 +22,11 @@ env:
   CI_BYPASS: ${CI_BYPASS}
 
 steps:
-  - label: ":docker: Image Deployments"
-    command: ".buildkite/steps/deployimages.sh | buildkite-agent pipeline upload"
-    if: build.env("CI_BYPASS") != "true"
-
-  - wait:
-    if: build.env("CI_BYPASS") != "true"
-
-  - label: ":docker: Deploy Manifests"
+  - label: ":docker: Deploy Manifest"
     command: "authelia-scripts docker push-manifest"
     retry:
       manual:
         permit_on_passed: true
-    env:
-      DOCKER_BUILDKIT: "1"
     agents:
       upload: "fast"
     if: build.env("CI_BYPASS") != "true"

@@ -6,7 +6,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -156,30 +155,13 @@ func deploy(docker *Docker, tag, registry string) {
 	}
 }
 
-func deployManifest(docker *Docker, tag, amd64tag, arm32v7tag, arm64v8tag, registry string) {
+func deployManifest(docker *Docker, tag, registry string) {
 	dockerImagePrefix := registry + "/" + DockerImageName + ":"
 
 	log.Infof("Docker manifest %s%s will be deployed on %s", dockerImagePrefix, tag, registry)
 
-	err := docker.Manifest(dockerImagePrefix+tag, dockerImagePrefix+amd64tag, dockerImagePrefix+arm32v7tag, dockerImagePrefix+arm64v8tag)
-
-	if err != nil {
+	if err := docker.Manifest(dockerImagePrefix + tag); err != nil {
 		log.Fatal(err)
-	}
-
-	tags := []string{amd64tag, arm32v7tag, arm64v8tag}
-
-	if registry == dockerhub {
-		for _, t := range tags {
-			log.Infof("Docker removing tag for %s%s on Docker Hub", dockerImagePrefix, t)
-
-			if err := utils.RunFuncWithRetry(3, 10*time.Second, func() (err error) {
-				err = docker.CleanTag(t)
-				return
-			}); err != nil {
-				log.Fatal(err)
-			}
-		}
 	}
 }
 
@@ -226,16 +208,16 @@ func publishDockerManifest() {
 			if len(tags) == 4 {
 				log.Infof("Detected tags: '%s' | '%s' | '%s'", tags[1], tags[2], tags[3])
 				login(docker, registry)
-				deployManifest(docker, tags[1], tags[1]+"-amd64", tags[1]+"-arm32v7", tags[1]+"-arm64v8", registry)
+				deployManifest(docker, tags[1], registry)
 
 				if registry == dockerhub {
 					publishDockerReadme(docker)
 				}
 
 				if !ignoredSuffixes.MatchString(ciTag) {
-					deployManifest(docker, tags[2], tags[2]+"-amd64", tags[2]+"-arm32v7", tags[2]+"-arm64v8", registry)
-					deployManifest(docker, tags[3], tags[3]+"-amd64", tags[3]+"-arm32v7", tags[3]+"-arm64v8", registry)
-					deployManifest(docker, "latest", "latest-amd64", "latest-arm32v7", "latest-arm64v8", registry)
+					deployManifest(docker, tags[2], registry)
+					deployManifest(docker, tags[3], registry)
+					deployManifest(docker, "latest", registry)
 
 					if registry == dockerhub {
 						publishDockerReadme(docker)
@@ -246,13 +228,13 @@ func publishDockerManifest() {
 			}
 		case ciBranch != masterTag && !publicRepo.MatchString(ciBranch):
 			login(docker, registry)
-			deployManifest(docker, ciBranch, ciBranch+"-amd64", ciBranch+"-arm32v7", ciBranch+"-arm64v8", registry)
+			deployManifest(docker, ciBranch, registry)
 		case ciBranch != masterTag && publicRepo.MatchString(ciBranch):
 			login(docker, registry)
-			deployManifest(docker, "PR"+ciPullRequest, "PR"+ciPullRequest+"-amd64", "PR"+ciPullRequest+"-arm32v7", "PR"+ciPullRequest+"-arm64v8", registry)
+			deployManifest(docker, "PR"+ciPullRequest, registry)
 		case ciBranch == masterTag && ciPullRequest == stringFalse:
 			login(docker, registry)
-			deployManifest(docker, "master", "master-amd64", "master-arm32v7", "master-arm64v8", registry)
+			deployManifest(docker, "master", registry)
 
 			if registry == dockerhub {
 				publishDockerReadme(docker)
