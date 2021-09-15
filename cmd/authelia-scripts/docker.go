@@ -32,7 +32,7 @@ func (d *Docker) Push(tag string) error {
 
 // Manifest push a docker manifest to dockerhub.
 func (d *Docker) Manifest(tag, amd64tag, arm32v7tag, arm64v8tag string) error {
-	return utils.CommandWithStdout("docker", "build", "imagetools", "create", "-t", tag, "-t", amd64tag, "-t", arm32v7tag, "-t", arm64v8tag).Run()
+	return utils.CommandWithStdout("docker", "buildx", "imagetools", "create", "-t", tag, "-t", amd64tag, "-t", arm32v7tag, "-t", arm64v8tag).Run()
 }
 
 // CleanTag remove a tag from dockerhub.
