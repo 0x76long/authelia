@@ -24,6 +24,8 @@ env:
 steps:
   - label: ":docker: Deploy Manifest"
     command: "authelia-scripts docker push-manifest"
+    depends_on:
+      - "unit-test"
     retry:
       manual:
         permit_on_passed: true
