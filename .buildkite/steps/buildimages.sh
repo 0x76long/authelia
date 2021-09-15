@@ -18,8 +18,6 @@ cat << EOF
 EOF
 if [[ "${BUILD_ARCH}" != "coverage" ]]; then
 cat << EOF
-      - "authelia-${BUILD_OS}-${BUILD_ARCH}.tar.gz"
-      - "authelia-${BUILD_OS}-${BUILD_ARCH}.tar.gz.sha256"
     depends_on:
       - "unit-test"
 EOF
@@ -28,6 +26,7 @@ cat << EOF
     env:
       ARCH: "${BUILD_ARCH}"
       OS: "${BUILD_OS}"
+      DOCKER_BUILDKIT: "1"
     key: "build-docker-${BUILD_OS}-${BUILD_ARCH}"
 EOF
 if [[ "${BUILD_ARCH}" == "coverage" ]]; then

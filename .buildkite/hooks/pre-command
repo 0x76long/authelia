@@ -15,9 +15,9 @@ if [[ "${BUILDKITE_LABEL}" =~ ":selenium:" ]]; then
 fi
 
 if [[ "${BUILDKITE_LABEL}" =~ ":docker: Build Image" ]] && [[ "${ARCH}" != "coverage" ]]; then
-  echo "--- :react: :swagger: Extract frontend assets"
-  buildkite-agent artifact download "authelia-public_html.tar.gz" .
-  tar xzf authelia-public_html.tar.gz
+  echo "--- :go: :react: :swagger: Extract pre-built binary"
+  buildkite-agent artifact download "authelia-${OS}-${ARCH}.tar.gz" .
+  tar xzf "authelia-${OS}-${ARCH}.tar.gz" "authelia-${OS}-${ARCH}" && mv "authelia-${OS}-${ARCH}" authelia
 fi
 
 if [[ "${BUILDKITE_LABEL}" =~ ":debian: Build Package" ]]; then
