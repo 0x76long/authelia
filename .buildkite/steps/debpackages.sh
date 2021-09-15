@@ -17,11 +17,11 @@ cat << EOF
 EOF
 elif [[ "${DEB_PACKAGE}" == "armhf" ]]; then
 cat << EOF
-      ARCH: "arm32v7"
+      ARCH: "arm"
 EOF
 else
 cat << EOF
-      ARCH: "arm64v8"
+      ARCH: "arm64"
 EOF
 fi
 cat << EOF

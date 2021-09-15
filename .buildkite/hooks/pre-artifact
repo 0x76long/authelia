@@ -2,13 +2,10 @@
 
 set +u
 
-declare -A BUILDS=(["linux"]="amd64 arm32v7 arm64v8" ["freebsd"]="amd64")
+declare -A BUILDS=(["linux"]="amd64 arm arm64" ["freebsd"]="amd64")
 DOCKER_IMAGE=authelia/authelia
 
 if [[ "${BUILDKITE_LABEL}" == ":hammer_and_wrench: Unit Test" ]]; then
-  find . -maxdepth 1 -name "authelia-linux-arm" -exec bash -c 'mv $0 ${0/arm/arm32v7}' {} \;
-  find . -maxdepth 1 -name "authelia-linux-arm64" -exec bash -c 'mv $0 ${0/arm64/arm64v8}' {} \;
-
   echo "--- :docker: Saving artifacts for :buildkite: :docker: :github: releases"
   for OS in "${!BUILDS[@]}"; do
     for ARCH in ${BUILDS[$OS]}; do
