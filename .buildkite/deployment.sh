@@ -35,7 +35,7 @@ steps:
       manual:
         permit_on_passed: true
     env:
-      DOCKER_CLI_EXPERIMENTAL: "enabled"
+      DOCKER_BUILDKIT: "1"
     agents:
       upload: "fast"
     if: build.env("CI_BYPASS") != "true"

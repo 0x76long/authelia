@@ -32,25 +32,7 @@ func (d *Docker) Push(tag string) error {
 
 // Manifest push a docker manifest to dockerhub.
 func (d *Docker) Manifest(tag, amd64tag, arm32v7tag, arm64v8tag string) error {
-	err := utils.CommandWithStdout("docker", "manifest", "create", tag, amd64tag, arm32v7tag, arm64v8tag).Run()
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = utils.CommandWithStdout("docker", "manifest", "annotate", tag, arm32v7tag, "--os", "linux", "--arch", "arm").Run()
-
-	if err != nil {
-		panic(err)
-	}
-
-	err = utils.CommandWithStdout("docker", "manifest", "annotate", tag, arm64v8tag, "--os", "linux", "--arch", "arm64", "--variant", "v8").Run()
-
-	if err != nil {
-		panic(err)
-	}
-
-	return utils.CommandWithStdout("docker", "manifest", "push", "--purge", tag).Run()
+	return utils.CommandWithStdout("docker", "build", "imagetools", "create", "-t", tag, "-t", amd64tag, "-t", arm32v7tag, "-t", arm64v8tag).Run()
 }
 
 // CleanTag remove a tag from dockerhub.
