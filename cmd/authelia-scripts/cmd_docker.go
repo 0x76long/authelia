@@ -107,7 +107,6 @@ var DockerManifestCmd = &cobra.Command{
 	Use:   "push-manifest",
 	Short: "Publish Authelia docker manifest to Docker Hub",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Infof("Pushing Docker manifest of %s to Docker Hub...", DockerImageName)
 		publishDockerManifest()
 	},
 }
