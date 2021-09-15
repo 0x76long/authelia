@@ -58,7 +58,7 @@ steps:
     agents:
       build: "linux-coverage"
     artifact_paths:
-      - "authelia-image-${BUILD_ARCH}.tar.zst"
+      - "authelia-image-coverage.tar.zst"
     depends_on: ~
     env:
       DOCKER_BUILDKIT: "1"
