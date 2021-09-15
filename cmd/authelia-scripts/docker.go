@@ -22,7 +22,7 @@ func (d *Docker) Tag(image, tag string) error {
 
 // Login login to the dockerhub registry.
 func (d *Docker) Login(username, password, registry string) error {
-	return utils.CommandWithStdout("bash", "-c", `echo `+password+` | docker login `+registry+`-u `+username).Run()
+	return utils.CommandWithStdout("bash", "-c", `echo `+password+` | docker login `+registry+` --password-stdin -u `+username).Run()
 }
 
 // Push push a docker image to dockerhub.
