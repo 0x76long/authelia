@@ -10,6 +10,21 @@ cat << EOF
       - "*.deb.sha256"
     env:
       PACKAGE: "${DEB_PACKAGE}"
+EOF
+if [[ "${DEB_PACKAGE}" == "amd64" ]]; then
+cat << EOF
+      ARCH: "${DEB_PACKAGE}"
+EOF
+elif [[ "${DEB_PACKAGE}" == "armhf" ]]; then
+cat << EOF
+      ARCH: "arm32v7"
+EOF
+else
+cat << EOF
+      ARCH: "arm64v8"
+EOF
+fi
+cat << EOF
     depends_on:
       - "unit-test"
     key: "build-deb-package-${DEB_PACKAGE}"
